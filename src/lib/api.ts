@@ -1,9 +1,26 @@
 import { supabase } from "./supabase";
 import { Database } from "@/types/supabase";
+import { v4 as uuidv4 } from "uuid";
 
 type Cohort = Database["public"]["Tables"]["cohorts"]["Row"];
 type Mentor = Database["public"]["Tables"]["mentors"]["Row"];
 type Mentee = Database["public"]["Tables"]["mentees"]["Row"];
+
+const uploadProfilePicture = async (file: File) => {
+  const fileExt = file.name.split(".").pop();
+  const fileName = `${uuidv4()}.${fileExt}`;
+  const { data, error } = await supabase.storage
+    .from("profile-pictures")
+    .upload(fileName, file);
+
+  if (error) throw error;
+
+  const {
+    data: { publicUrl },
+  } = supabase.storage.from("profile-pictures").getPublicUrl(fileName);
+
+  return publicUrl;
+};
 
 export const api = {
   // Curriculums
@@ -58,10 +75,18 @@ export const api = {
     return data;
   },
 
-  updateMentor: async (id: string, updates: Partial<Mentor>) => {
+  updateMentor: async (
+    id: string,
+    updates: Partial<Mentor>,
+    profilePicture?: File,
+  ) => {
+    let profile_picture_url = updates.profile_picture_url;
+    if (profilePicture) {
+      profile_picture_url = await uploadProfilePicture(profilePicture);
+    }
     const { data, error } = await supabase
       .from("mentors")
-      .update(updates)
+      .update({ ...updates, profile_picture_url })
       .eq("id", id)
       .select()
       .single();
@@ -103,10 +128,17 @@ export const api = {
     }));
   },
 
-  createMentor: async (mentor: Omit<Mentor, "id" | "created_at">) => {
+  createMentor: async (
+    mentor: Omit<Mentor, "id" | "created_at">,
+    profilePicture?: File,
+  ) => {
+    let profile_picture_url = null;
+    if (profilePicture) {
+      profile_picture_url = await uploadProfilePicture(profilePicture);
+    }
     const { data, error } = await supabase
       .from("mentors")
-      .insert(mentor)
+      .insert({ ...mentor, profile_picture_url })
       .select()
       .single();
     if (error) throw error;
@@ -124,10 +156,18 @@ export const api = {
     return data;
   },
 
-  updateMentee: async (id: string, updates: Partial<Mentee>) => {
+  updateMentee: async (
+    id: string,
+    updates: Partial<Mentee>,
+    profilePicture?: File,
+  ) => {
+    let profile_picture_url = updates.profile_picture_url;
+    if (profilePicture) {
+      profile_picture_url = await uploadProfilePicture(profilePicture);
+    }
     const { data, error } = await supabase
       .from("mentees")
-      .update(updates)
+      .update({ ...updates, profile_picture_url })
       .eq("id", id)
       .select()
       .single();
@@ -146,10 +186,15 @@ export const api = {
 
   createMentee: async (
     mentee: Omit<Mentee, "id" | "created_at"> & { mentor_id?: string },
+    profilePicture?: File,
   ) => {
+    let profile_picture_url = null;
+    if (profilePicture) {
+      profile_picture_url = await uploadProfilePicture(profilePicture);
+    }
     const { data, error } = await supabase
       .from("mentees")
-      .insert(mentee)
+      .insert({ ...mentee, profile_picture_url })
       .select()
       .single();
     if (error) throw error;

@@ -124,11 +124,13 @@ export function MentorList() {
             </TableBody>
           </Table>
         </div>
-        <Pagination
-          currentPage={currentPage}
-          totalPages={totalPages}
-          onPageChange={setCurrentPage}
-        />
+        {filteredMentors.length > 0 && (
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={setCurrentPage}
+          />
+        )}
       </CardContent>
     </Card>
   );

@@ -126,11 +126,13 @@ export function MenteeList() {
             </TableBody>
           </Table>
         </div>
-        <Pagination
-          currentPage={currentPage}
-          totalPages={totalPages}
-          onPageChange={setCurrentPage}
-        />
+        {filteredMentees.length > 0 && (
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={setCurrentPage}
+          />
+        )}
       </CardContent>
     </Card>
   );

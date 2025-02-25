@@ -3,6 +3,7 @@ import { useParams, Link } from "react-router-dom";
 import { api } from "@/lib/api";
 import Sidebar from "@/components/dashboard/Sidebar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -21,6 +22,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Camera, Upload } from "lucide-react";
 
 const subcounties = [
   "likoni",
@@ -38,10 +40,14 @@ const UserProfile = () => {
   const [mentor, setMentor] = useState(null);
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState(false);
+  const [profilePicture, setProfilePicture] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     name: "",
     email: "",
     subcounty: "",
+    id_number: "",
+    phone_number: "",
   });
 
   useEffect(() => {
@@ -56,6 +62,8 @@ const UserProfile = () => {
           name: data.name,
           email: data.email,
           subcounty: data.subcounty,
+          id_number: data.id_number || "",
+          phone_number: data.phone_number || "",
         });
 
         if (type === "mentor") {
@@ -77,13 +85,24 @@ const UserProfile = () => {
     loadData();
   }, [id, type]);
 
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setProfilePicture(file);
+      const url = URL.createObjectURL(file);
+      setPreviewUrl(url);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
       const updateFn = type === "mentor" ? api.updateMentor : api.updateMentee;
-      await updateFn(id, formData);
-      setUser({ ...user, ...formData });
+      const updatedUser = await updateFn(id, formData, profilePicture);
+      setUser(updatedUser);
       setEditing(false);
+      setProfilePicture(null);
+      setPreviewUrl(null);
     } catch (error) {
       console.error("Error updating user:", error);
     }
@@ -104,6 +123,41 @@ const UserProfile = () => {
               </CardTitle>
             </CardHeader>
             <CardContent>
+              <div className="flex flex-col items-center gap-4 mb-8">
+                <div className="relative">
+                  <Avatar className="w-32 h-32">
+                    <AvatarImage
+                      src={previewUrl || user.profile_picture_url || undefined}
+                    />
+                    <AvatarFallback className="text-4xl">
+                      {user.name[0].toUpperCase()}
+                    </AvatarFallback>
+                  </Avatar>
+                  {editing && (
+                    <div className="absolute bottom-0 right-0">
+                      <Input
+                        type="file"
+                        accept="image/*"
+                        onChange={handleFileChange}
+                        className="hidden"
+                        id="profile-picture"
+                      />
+                      <Button
+                        type="button"
+                        size="icon"
+                        variant="secondary"
+                        onClick={() =>
+                          document.getElementById("profile-picture")?.click()
+                        }
+                        className="rounded-full"
+                      >
+                        <Camera className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  )}
+                </div>
+              </div>
+
               {editing ? (
                 <form onSubmit={handleSubmit} className="space-y-4">
                   <div className="space-y-2">
@@ -160,12 +214,46 @@ const UserProfile = () => {
                     </Select>
                   </div>
 
+                  <div className="space-y-2">
+                    <Label htmlFor="id_number">ID Number</Label>
+                    <Input
+                      id="id_number"
+                      value={formData.id_number}
+                      onChange={(e) =>
+                        setFormData((prev) => ({
+                          ...prev,
+                          id_number: e.target.value,
+                        }))
+                      }
+                      required
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="phone_number">Phone Number</Label>
+                    <Input
+                      id="phone_number"
+                      value={formData.phone_number}
+                      onChange={(e) =>
+                        setFormData((prev) => ({
+                          ...prev,
+                          phone_number: e.target.value,
+                        }))
+                      }
+                      required
+                    />
+                  </div>
+
                   <div className="flex gap-2">
                     <Button type="submit">Save Changes</Button>
                     <Button
                       type="button"
                       variant="outline"
-                      onClick={() => setEditing(false)}
+                      onClick={() => {
+                        setEditing(false);
+                        setProfilePicture(null);
+                        setPreviewUrl(null);
+                      }}
                     >
                       Cancel
                     </Button>
@@ -184,6 +272,18 @@ const UserProfile = () => {
                   <div>
                     <Label>Subcounty</Label>
                     <div className="mt-1">{user.subcounty}</div>
+                  </div>
+                  <div>
+                    <Label>ID Number</Label>
+                    <div className="mt-1">
+                      {user.id_number || "Not provided"}
+                    </div>
+                  </div>
+                  <div>
+                    <Label>Phone Number</Label>
+                    <div className="mt-1">
+                      {user.phone_number || "Not provided"}
+                    </div>
                   </div>
                   <Button onClick={() => setEditing(true)}>Edit Profile</Button>
                 </div>

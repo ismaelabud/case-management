@@ -45,26 +45,67 @@ export type Database = {
       cohorts: {
         Row: {
           created_at: string
+          curriculum_id: string | null
+          end_date: string
           id: string
           name: string
+          start_date: string
           status: Database["public"]["Enums"]["cohort_status"]
           subcounty: Database["public"]["Enums"]["mombasa_subcounty"]
           updated_at: string
         }
         Insert: {
           created_at?: string
+          curriculum_id?: string | null
+          end_date: string
           id?: string
           name: string
+          start_date: string
           status?: Database["public"]["Enums"]["cohort_status"]
           subcounty: Database["public"]["Enums"]["mombasa_subcounty"]
           updated_at?: string
         }
         Update: {
           created_at?: string
+          curriculum_id?: string | null
+          end_date?: string
           id?: string
           name?: string
+          start_date?: string
           status?: Database["public"]["Enums"]["cohort_status"]
           subcounty?: Database["public"]["Enums"]["mombasa_subcounty"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cohorts_curriculum_id_fkey"
+            columns: ["curriculum_id"]
+            isOneToOne: false
+            referencedRelation: "curriculums"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      curriculums: {
+        Row: {
+          content: Json
+          created_at: string
+          id: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          content: Json
+          created_at?: string
+          id?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          content?: Json
+          created_at?: string
+          id?: string
+          title?: string
           updated_at?: string
         }
         Relationships: []
@@ -75,6 +116,7 @@ export type Database = {
           created_at: string
           email: string
           id: string
+          mentor_id: string | null
           name: string
           subcounty: Database["public"]["Enums"]["mombasa_subcounty"]
         }
@@ -83,6 +125,7 @@ export type Database = {
           created_at?: string
           email: string
           id?: string
+          mentor_id?: string | null
           name: string
           subcounty: Database["public"]["Enums"]["mombasa_subcounty"]
         }
@@ -91,6 +134,7 @@ export type Database = {
           created_at?: string
           email?: string
           id?: string
+          mentor_id?: string | null
           name?: string
           subcounty?: Database["public"]["Enums"]["mombasa_subcounty"]
         }
@@ -100,6 +144,13 @@ export type Database = {
             columns: ["cohort_id"]
             isOneToOne: false
             referencedRelation: "cohorts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "mentees_mentor_id_fkey"
+            columns: ["mentor_id"]
+            isOneToOne: false
+            referencedRelation: "mentors"
             referencedColumns: ["id"]
           },
         ]
