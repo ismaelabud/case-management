@@ -1,13 +1,11 @@
 import React from "react";
-import Sidebar from "@/components/dashboard/Sidebar";
 import MetricsGrid from "@/components/dashboard/MetricsGrid";
 import CohortManagement from "@/components/dashboard/CohortManagement";
 import SubcountyDistribution from "@/components/dashboard/SubcountyDistribution";
 
 const Dashboard = () => {
   return (
-    <div className="flex flex-col md:flex-row h-screen bg-[#f7f9fc] overflow-hidden">
-      <Sidebar />
+    <div className="h-screen bg-[#f7f9fc] overflow-hidden">
       <main className="flex-1 overflow-y-auto p-4 md:p-8 relative">
         <div className="max-w-7xl mx-auto space-y-8 pb-20">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 sm:gap-0">

@@ -16,6 +16,7 @@ import {
   MessageSquare,
   Settings,
   LogOut,
+  Layers,
 } from "lucide-react";
 
 interface SidebarProps {
@@ -40,6 +41,11 @@ const Sidebar = ({ className, items }: SidebarProps) => {
       title: "Users",
       icon: <Users className="w-5 h-5" />,
       href: "/users",
+    },
+    {
+      title: "Cohorts",
+      icon: <Layers className="w-5 h-5" />,
+      href: "/cohorts",
     },
     {
       title: "Reports",

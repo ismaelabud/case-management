@@ -23,6 +23,63 @@ const uploadProfilePicture = async (file: File) => {
 };
 
 export const api = {
+  // Cohorts
+  getCohorts: async () => {
+    const { data, error } = await supabase.from("cohorts").select(`
+        *,
+        cohort_mentors!inner(mentor_id),
+        mentors!inner(*),
+        mentees(*)
+      `);
+    if (error) throw error;
+    return data;
+  },
+
+  getCohort: async (id: string) => {
+    const { data, error } = await supabase
+      .from("cohorts")
+      .select(
+        `
+        *,
+        mentors:cohort_mentors(mentors(*)),
+        mentees(*)
+      `,
+      )
+      .eq("id", id)
+      .single();
+    if (error) throw error;
+    return data;
+  },
+
+  createCohort: async (cohort: {
+    name: string;
+    start_date: string;
+    end_date: string;
+  }) => {
+    const { data, error } = await supabase
+      .from("cohorts")
+      .insert(cohort)
+      .select()
+      .single();
+    if (error) throw error;
+    return data;
+  },
+
+  assignMentorToCohort: async (cohortId: string, mentorId: string) => {
+    const { error } = await supabase
+      .from("cohort_mentors")
+      .insert({ cohort_id: cohortId, mentor_id: mentorId });
+    if (error) throw error;
+  },
+
+  removeMentorFromCohort: async (cohortId: string, mentorId: string) => {
+    const { error } = await supabase
+      .from("cohort_mentors")
+      .delete()
+      .match({ cohort_id: cohortId, mentor_id: mentorId });
+    if (error) throw error;
+  },
+
   // Curriculums
   getCurriculums: async () => {
     const { data, error } = await supabase.from("curriculums").select("*");
@@ -48,6 +105,22 @@ export const api = {
         mentors!inner(*),
         mentees(*)
       `);
+    if (error) throw error;
+    return data;
+  },
+
+  getCohort: async (id: string) => {
+    const { data, error } = await supabase
+      .from("cohorts")
+      .select(
+        `
+        *,
+        mentors:cohort_mentors(mentors(*)),
+        mentees(*)
+      `,
+      )
+      .eq("id", id)
+      .single();
     if (error) throw error;
     return data;
   },
@@ -206,6 +279,14 @@ export const api = {
     const { error } = await supabase
       .from("cohort_mentors")
       .insert({ cohort_id: cohortId, mentor_id: mentorId });
+    if (error) throw error;
+  },
+
+  removeMentorFromCohort: async (cohortId: string, mentorId: string) => {
+    const { error } = await supabase
+      .from("cohort_mentors")
+      .delete()
+      .match({ cohort_id: cohortId, mentor_id: mentorId });
     if (error) throw error;
   },
 };
