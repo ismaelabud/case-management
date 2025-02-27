@@ -116,8 +116,11 @@ export type Database = {
           created_at: string
           email: string
           id: string
+          id_number: string | null
           mentor_id: string | null
           name: string
+          phone_number: string | null
+          profile_picture_url: string | null
           subcounty: Database["public"]["Enums"]["mombasa_subcounty"]
         }
         Insert: {
@@ -125,8 +128,11 @@ export type Database = {
           created_at?: string
           email: string
           id?: string
+          id_number?: string | null
           mentor_id?: string | null
           name: string
+          phone_number?: string | null
+          profile_picture_url?: string | null
           subcounty: Database["public"]["Enums"]["mombasa_subcounty"]
         }
         Update: {
@@ -134,8 +140,11 @@ export type Database = {
           created_at?: string
           email?: string
           id?: string
+          id_number?: string | null
           mentor_id?: string | null
           name?: string
+          phone_number?: string | null
+          profile_picture_url?: string | null
           subcounty?: Database["public"]["Enums"]["mombasa_subcounty"]
         }
         Relationships: [
@@ -160,21 +169,30 @@ export type Database = {
           created_at: string
           email: string
           id: string
+          id_number: string | null
           name: string
+          phone_number: string | null
+          profile_picture_url: string | null
           subcounty: Database["public"]["Enums"]["mombasa_subcounty"]
         }
         Insert: {
           created_at?: string
           email: string
           id?: string
+          id_number?: string | null
           name: string
+          phone_number?: string | null
+          profile_picture_url?: string | null
           subcounty: Database["public"]["Enums"]["mombasa_subcounty"]
         }
         Update: {
           created_at?: string
           email?: string
           id?: string
+          id_number?: string | null
           name?: string
+          phone_number?: string | null
+          profile_picture_url?: string | null
           subcounty?: Database["public"]["Enums"]["mombasa_subcounty"]
         }
         Relationships: []

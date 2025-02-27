@@ -113,7 +113,6 @@ const UserProfile = () => {
 
   return (
     <div className="flex flex-col md:flex-row h-screen bg-[#f7f9fc] overflow-hidden">
-      <Sidebar />
       <main className="flex-1 overflow-y-auto p-4 md:p-8">
         <div className="max-w-3xl mx-auto">
           <Card>

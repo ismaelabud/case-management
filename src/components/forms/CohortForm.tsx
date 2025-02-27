@@ -4,6 +4,14 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/components/ui/use-toast";
+import { Database } from "@/types/supabase";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 export function CohortForm({ onSuccess }: { onSuccess?: () => void }) {
   const [loading, setLoading] = useState(false);
@@ -12,6 +20,8 @@ export function CohortForm({ onSuccess }: { onSuccess?: () => void }) {
     name: "",
     start_date: "",
     end_date: "",
+    subcounty: "likoni" as Database["public"]["Enums"]["mombasa_subcounty"],
+    status: "pending" as Database["public"]["Enums"]["cohort_status"],
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -22,6 +32,8 @@ export function CohortForm({ onSuccess }: { onSuccess?: () => void }) {
         name: formData.name,
         start_date: formData.start_date,
         end_date: formData.end_date,
+        subcounty: formData.subcounty,
+        status: formData.status,
       });
       toast({
         title: "Success",
@@ -78,6 +90,54 @@ export function CohortForm({ onSuccess }: { onSuccess?: () => void }) {
           }
           required
         />
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="subcounty">Subcounty</Label>
+        <Select
+          value={formData.subcounty}
+          onValueChange={(value) =>
+            setFormData((prev) => ({
+              ...prev,
+              subcounty:
+                value as Database["public"]["Enums"]["mombasa_subcounty"],
+            }))
+          }
+        >
+          <SelectTrigger>
+            <SelectValue placeholder="Select subcounty" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="likoni">Likoni</SelectItem>
+            <SelectItem value="mvita">Mvita</SelectItem>
+            <SelectItem value="kisauni">Kisauni</SelectItem>
+            <SelectItem value="nyali">Nyali</SelectItem>
+            <SelectItem value="changamwe">Changamwe</SelectItem>
+            <SelectItem value="jomvu">Jomvu</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="status">Status</Label>
+        <Select
+          value={formData.status}
+          onValueChange={(value) =>
+            setFormData((prev) => ({
+              ...prev,
+              status: value as Database["public"]["Enums"]["cohort_status"],
+            }))
+          }
+        >
+          <SelectTrigger>
+            <SelectValue placeholder="Select status" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="pending">Pending</SelectItem>
+            <SelectItem value="active">Active</SelectItem>
+            <SelectItem value="completed">Completed</SelectItem>
+          </SelectContent>
+        </Select>
       </div>
 
       <Button type="submit" className="w-full" disabled={loading}>

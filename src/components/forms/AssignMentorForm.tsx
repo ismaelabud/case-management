@@ -9,6 +9,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
+import { useToast } from "@/components/ui/use-toast";
 
 interface Props {
   cohortId: string;
@@ -19,29 +20,46 @@ export function AssignMentorForm({ cohortId, onSuccess }: Props) {
   const [mentors, setMentors] = useState([]);
   const [selectedMentor, setSelectedMentor] = useState("");
   const [loading, setLoading] = useState(false);
+  const { toast } = useToast();
 
   useEffect(() => {
-    loadMentors();
-  }, []);
+    const loadMentors = async () => {
+      try {
+        const data = await api.getMentors();
+        setMentors(data);
+      } catch (error) {
+        console.error("Error loading mentors:", error);
+        toast({
+          title: "Error",
+          description: "Failed to load mentors",
+          variant: "destructive",
+        });
+      }
+    };
 
-  const loadMentors = async () => {
-    try {
-      const data = await api.getMentors();
-      setMentors(data);
-    } catch (error) {
-      console.error("Error loading mentors:", error);
-    }
-  };
+    loadMentors();
+  }, [toast]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
+    if (!selectedMentor) return;
 
+    setLoading(true);
     try {
       await api.assignMentorToCohort(cohortId, selectedMentor);
+      setSelectedMentor("");
+      toast({
+        title: "Success",
+        description: "Mentor assigned to cohort successfully",
+      });
       onSuccess?.();
     } catch (error) {
       console.error("Error assigning mentor:", error);
+      toast({
+        title: "Error",
+        description: "Failed to assign mentor to cohort",
+        variant: "destructive",
+      });
     } finally {
       setLoading(false);
     }
@@ -56,7 +74,7 @@ export function AssignMentorForm({ cohortId, onSuccess }: Props) {
           onValueChange={setSelectedMentor}
           required
         >
-          <SelectTrigger>
+          <SelectTrigger id="mentor">
             <SelectValue placeholder="Select a mentor" />
           </SelectTrigger>
           <SelectContent>
@@ -69,7 +87,7 @@ export function AssignMentorForm({ cohortId, onSuccess }: Props) {
         </Select>
       </div>
 
-      <Button type="submit" className="w-full" disabled={loading}>
+      <Button type="submit" disabled={loading || !selectedMentor}>
         {loading ? "Assigning..." : "Assign Mentor"}
       </Button>
     </form>

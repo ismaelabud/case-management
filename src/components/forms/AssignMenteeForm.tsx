@@ -9,6 +9,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
+import { useToast } from "@/components/ui/use-toast";
 
 interface Props {
   cohortId: string;
@@ -19,29 +20,48 @@ export function AssignMenteeForm({ cohortId, onSuccess }: Props) {
   const [mentees, setMentees] = useState([]);
   const [selectedMentee, setSelectedMentee] = useState("");
   const [loading, setLoading] = useState(false);
+  const { toast } = useToast();
 
   useEffect(() => {
-    loadMentees();
-  }, []);
+    const loadMentees = async () => {
+      try {
+        const data = await api.getMentees();
+        // Filter out mentees that are already assigned to a cohort
+        const unassignedMentees = data.filter((mentee) => !mentee.cohort_id);
+        setMentees(unassignedMentees);
+      } catch (error) {
+        console.error("Error loading mentees:", error);
+        toast({
+          title: "Error",
+          description: "Failed to load mentees",
+          variant: "destructive",
+        });
+      }
+    };
 
-  const loadMentees = async () => {
-    try {
-      const data = await api.getMentees();
-      setMentees(data.filter((mentee) => !mentee.cohort_id));
-    } catch (error) {
-      console.error("Error loading mentees:", error);
-    }
-  };
+    loadMentees();
+  }, [toast]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
+    if (!selectedMentee) return;
 
+    setLoading(true);
     try {
       await api.updateMentee(selectedMentee, { cohort_id: cohortId });
+      setSelectedMentee("");
+      toast({
+        title: "Success",
+        description: "Mentee assigned to cohort successfully",
+      });
       onSuccess?.();
     } catch (error) {
       console.error("Error assigning mentee:", error);
+      toast({
+        title: "Error",
+        description: "Failed to assign mentee to cohort",
+        variant: "destructive",
+      });
     } finally {
       setLoading(false);
     }
@@ -56,7 +76,7 @@ export function AssignMenteeForm({ cohortId, onSuccess }: Props) {
           onValueChange={setSelectedMentee}
           required
         >
-          <SelectTrigger>
+          <SelectTrigger id="mentee">
             <SelectValue placeholder="Select a mentee" />
           </SelectTrigger>
           <SelectContent>
@@ -69,7 +89,7 @@ export function AssignMenteeForm({ cohortId, onSuccess }: Props) {
         </Select>
       </div>
 
-      <Button type="submit" className="w-full" disabled={loading}>
+      <Button type="submit" disabled={loading || !selectedMentee}>
         {loading ? "Assigning..." : "Assign Mentee"}
       </Button>
     </form>
